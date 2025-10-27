@@ -1,0 +1,20 @@
+{
+  "name": "kupongo-webxr-demo",
+  "version": "1.0.0",
+  "description": "WebXR AR demo для презентации концепции KuponGo",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js"
+  },
+  "keywords": ["webxr", "ar", "three.js", "coupons"],
+  "author": "KuponGo Team",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "three": "^0.160.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  }
+}
