@@ -1,0 +1,189 @@
+KuponGo Custom License
+Copyright (c) 2024 KuponGo Team. All rights reserved.
+
+Version 1.0
+
+================================================================================
+TERMS AND CONDITIONS
+================================================================================
+
+1. DEFINITIONS
+
+   "Software" refers to the KuponGo application, including all source code,
+   documentation, assets, 3D models, designs, and related materials contained
+   in this repository.
+
+   "You" (or "Your") refers to an individual or legal entity exercising
+   permissions granted by this License.
+
+   "Commercial Use" means any use of the Software that is primarily intended
+   for or directed toward commercial advantage or monetary compensation.
+
+   "Non-Commercial Use" means use of the Software for educational, research,
+   or personal purposes without any monetary compensation.
+
+2. GRANT OF RIGHTS
+
+   Subject to the terms and conditions of this License, You are granted:
+
+   a) RIGHT TO VIEW AND STUDY
+      - You may view, read, and study the source code for educational purposes
+      - You may analyze the architecture and implementation for learning
+      - You may reference the code in academic or educational contexts
+
+   b) RIGHT TO USE (NON-COMMERCIAL)
+      - You may run the Software for personal, educational, or research purposes
+      - You may modify the Software for your own non-commercial use
+      - You may create derivative works for educational purposes
+
+   c) RIGHT TO FORK (NON-COMMERCIAL)
+      - You may fork this repository for non-commercial projects
+      - You must clearly indicate that your fork is not the official KuponGo
+      - You must retain all copyright notices and this license
+
+3. RESTRICTIONS
+
+   You are NOT permitted to:
+
+   a) COMMERCIAL USE
+      - Use the Software or any part of it in a commercial product or service
+      - Offer the Software as a service (SaaS) without written permission
+      - Sell, rent, lease, or sublicense the Software
+      - Use the Software to generate revenue without a commercial license
+
+   b) TRADEMARK AND BRANDING
+      - Use the "KuponGo" name, logo, or branding without permission
+      - Present your derivative work as the official KuponGo product
+      - Mislead users about the origin of your derivative work
+
+   c) PATENT CLAIMS
+      - Assert any patent claims against the original Software or contributors
+      - File patent applications based on the Software's innovations
+
+   d) REDISTRIBUTION
+      - Redistribute the Software or substantial portions without this license
+      - Remove or alter any copyright notices or license terms
+      - Distribute modified versions as the original Software
+
+4. COMMERCIAL LICENSE
+
+   If you wish to use the Software for commercial purposes:
+
+   a) You must obtain a separate commercial license from KuponGo Team
+   b) Contact: licensing@kupongo.app
+   c) Commercial licenses are available for:
+      - Startups and Small Businesses
+      - Enterprise Organizations
+      - White-label Solutions
+      - Custom Deployments
+
+5. CONTRIBUTIONS
+
+   By submitting code, documentation, or other materials to this project:
+
+   a) You grant KuponGo Team a perpetual, worldwide, non-exclusive,
+      royalty-free license to use, modify, and distribute your contributions
+   b) You retain copyright to your contributions
+   c) You represent that you have the right to make the contribution
+   d) Your contributions will be subject to this license
+
+6. ATTRIBUTION
+
+   If you create derivative works based on this Software:
+
+   a) You must provide clear attribution to KuponGo and the original authors
+   b) Include a link to the original repository
+   c) State what changes you made from the original
+   d) Example attribution:
+      "Based on KuponGo by KuponGo Team (https://github.com/safal207/KuponGo)"
+
+7. THIRD-PARTY COMPONENTS
+
+   This Software includes third-party open source components, each with their
+   own license terms. See THIRD_PARTY_LICENSES.md for details.
+
+   a) LiminalDB - MIT License (https://github.com/safal207/LiminalBD)
+   b) Three.js - MIT License
+   c) Flutter - BSD 3-Clause License
+   d) Other dependencies listed in package.json and pubspec.yaml
+
+8. DISCLAIMER OF WARRANTY
+
+   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+
+   IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+   DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+   OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+   USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+9. LIMITATION OF LIABILITY
+
+   IN NO EVENT SHALL KUPONGO TEAM BE LIABLE FOR ANY DIRECT, INDIRECT,
+   INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+   NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+   DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+   THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+   (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+10. TERMINATION
+
+    This License and the rights granted hereunder will terminate automatically
+    upon any breach by You of the terms of this License.
+
+    Upon termination:
+    a) You must cease all use of the Software
+    b) You must destroy all copies of the Software in your possession
+    c) Any sublicenses granted by You must also terminate
+
+11. GENERAL
+
+    a) This License constitutes the entire agreement between the parties
+    b) If any provision is found invalid, the remainder shall continue in effect
+    c) This License is governed by the laws of [Your Jurisdiction]
+    d) Disputes shall be resolved in the courts of [Your Jurisdiction]
+
+12. CONTACT
+
+    For questions about this License:
+    - Email: licensing@kupongo.app
+    - Website: https://kupongo.app
+    - GitHub: https://github.com/safal207/KuponGo
+
+13. LICENSE VERSIONS
+
+    KuponGo Team may publish revised and/or new versions of this License from
+    time to time. Each version will be given a distinguishing version number.
+
+    You may use the Software under the terms of the version of this License
+    under which You originally received the Software, or under the terms of
+    any subsequent version.
+
+================================================================================
+
+SUMMARY (NOT LEGALLY BINDING)
+
+✅ You CAN:
+   - View and study the code
+   - Use for personal/educational projects
+   - Fork for non-commercial use
+   - Learn and reference in academic work
+
+❌ You CANNOT:
+   - Use commercially without a license
+   - Remove copyright notices
+   - Use the KuponGo branding
+   - Sell or monetize without permission
+
+💼 Commercial Use:
+   - Contact us for a commercial license
+   - Flexible pricing for startups
+   - Enterprise solutions available
+
+================================================================================
+
+Copyright (c) 2024 KuponGo Team
+safal207 and contributors
+All Rights Reserved.

@@ -1,0 +1,23 @@
+# Dockerfile для Backend API
+FROM node:18-slim
+
+WORKDIR /app
+
+# Копировать package.json
+COPY backend/package*.json ./
+
+# Установить зависимости
+RUN npm ci --only=production
+
+# Копировать исходный код
+COPY backend/ ./
+
+# Создать пользователя без root
+RUN useradd -m -u 1000 app && chown -R app:app /app
+USER app
+
+# Порт API
+EXPOSE 5000
+
+# Запустить сервер
+CMD ["node", "server.js"]
