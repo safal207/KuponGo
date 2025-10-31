@@ -1,0 +1,14 @@
+node_modules
+npm-debug.log
+.git
+.gitignore
+.env
+.DS_Store
+*.md
+docs
+flutter-app
+.github
+*.log
+coverage
+.vscode
+.idea

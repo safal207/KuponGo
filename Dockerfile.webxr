@@ -1,0 +1,23 @@
+# Dockerfile для WebXR Demo
+FROM node:18-slim
+
+WORKDIR /app
+
+# Копировать package.json
+COPY webxr-demo/package*.json ./
+
+# Установить зависимости
+RUN npm ci --only=production
+
+# Копировать исходный код
+COPY webxr-demo/ ./
+
+# Создать пользователя без root
+RUN useradd -m -u 1000 app && chown -R app:app /app
+USER app
+
+# Порт WebXR Demo
+EXPOSE 3000
+
+# Запустить сервер
+CMD ["node", "src/server.js"]
