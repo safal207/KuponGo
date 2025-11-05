@@ -1,0 +1,165 @@
+# GardenLiminal Seed для Backend API
+# Node.js сервер с Express и интеграцией LiminalDB
+
+apiVersion: garden.liminal/v1
+kind: Seed
+
+metadata:
+  name: kupongo-backend
+  version: "1.0.0"
+  description: "Backend API сервер для KuponGo с LiminalDB клиентом"
+  labels:
+    app: kupongo
+    component: api
+    tier: backend
+
+spec:
+  # Процесс для запуска
+  process:
+    # Команда запуска Node.js приложения
+    entrypoint: ["/usr/local/bin/node"]
+    args:
+      - "/app/backend/src/server.js"
+
+    # Рабочая директория
+    workingDir: "/app"
+
+    # Переменные окружения
+    env:
+      NODE_ENV: "production"
+      PORT: "3000"
+
+      # LiminalDB конфигурация
+      LIMINALDB_URL: "ws://10.44.0.2:8787"
+      LIMINALDB_NAMESPACE: "kupongo"
+      LIMINALDB_API_KEY: "kupongo-api-key-2024"
+      LIMINALDB_FORMAT: "json"
+      LIMINALDB_RECONNECT: "true"
+
+      # JWT секреты
+      JWT_SECRET: "kupongo-jwt-secret-change-in-production"
+      JWT_EXPIRY: "7d"
+
+      # CORS настройки
+      CORS_ORIGIN: "*"
+
+      # Геолокация
+      GEOHASH_PRECISION: "7"
+      DEFAULT_SEARCH_RADIUS: "5000"
+
+      # Рейтинг лимиты
+      RATE_LIMIT_WINDOW: "900000"
+      RATE_LIMIT_MAX_REQUESTS: "100"
+
+    # User/Group
+    user:
+      uid: 1000
+      gid: 1000
+
+    # Рестарт политика
+    restartPolicy: "Always"
+    restartBackoff:
+      min: 2
+      max: 60
+
+  # Ресурсные лимиты
+  resources:
+    limits:
+      cpu: "1000m"        # 1 CPU core
+      memory: "1Gi"       # 1GB RAM
+      pids: 512
+    requests:
+      cpu: "250m"         # Минимум 0.25 CPU
+      memory: "256Mi"     # Минимум 256MB RAM
+
+  # Монтирование
+  mounts:
+    # Rootfs с Node.js и приложением
+    - source: "/home/user/KuponGo/garden/rootfs/backend"
+      target: "/"
+      type: "bind"
+      readonly: false
+
+    # Монтируем исходники для hot reload (dev режим)
+    - source: "/home/user/KuponGo/backend"
+      target: "/app/backend"
+      type: "bind"
+      readonly: true
+
+    # Логи
+    - source: "/var/lib/kupongo/backend-logs"
+      target: "/var/log/backend"
+      type: "bind"
+      readonly: false
+
+  # Сетевые настройки
+  network:
+    mode: "bridge"
+    hostname: "backend"
+    ports:
+      - containerPort: 3000
+        hostPort: 3000
+        protocol: "tcp"
+    dns:
+      - "8.8.8.8"
+
+  # Namespace изоляция
+  namespaces:
+    user: true
+    pid: true
+    uts: true
+    ipc: true
+    mount: true
+    network: true
+
+  # Security
+  security:
+    capabilities:
+      drop:
+        - "CAP_SYS_ADMIN"
+        - "CAP_NET_ADMIN"
+      add: []
+    noNewPrivileges: true
+
+  # Мониторинг
+  monitoring:
+    enabled: true
+    interval: 30
+    metrics:
+      - "memory.usage"
+      - "cpu.usage"
+      - "pids.current"
+
+  # Logging
+  logging:
+    driver: "liminaldb"
+    format: "json"
+    level: "info"
+    outputs:
+      - type: "file"
+        path: "/var/log/backend/api.log"
+      - type: "liminal"
+        endpoint: "ws://10.44.0.2:8787"
+        namespace: "kupongo.logs.backend"
+
+  # Healthcheck
+  healthcheck:
+    enabled: true
+    command: ["curl", "-f", "http://localhost:3000/health"]
+    interval: 30
+    timeout: 5
+    retries: 3
+    startPeriod: 15
+
+  # Зависимости от других контейнеров
+  depends_on:
+    - liminaldb
+
+  # Init контейнеры (запускаются перед основным)
+  initContainers:
+    - name: wait-for-liminaldb
+      image: "busybox"
+      command:
+        - "sh"
+        - "-c"
+        - "until nc -z 10.44.0.2 8787; do echo 'Waiting for LiminalDB...'; sleep 2; done"

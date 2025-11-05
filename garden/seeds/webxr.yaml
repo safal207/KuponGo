@@ -1,0 +1,136 @@
+# GardenLiminal Seed для WebXR Demo
+# Статический сервер для Three.js AR демо
+
+apiVersion: garden.liminal/v1
+kind: Seed
+
+metadata:
+  name: kupongo-webxr
+  version: "1.0.0"
+  description: "WebXR AR демо на Three.js для браузерного AR"
+  labels:
+    app: kupongo
+    component: webxr
+    tier: frontend
+
+spec:
+  # Процесс для запуска
+  process:
+    # Используем Node.js http-server для статики
+    entrypoint: ["/usr/local/bin/node"]
+    args:
+      - "/usr/local/bin/http-server"
+      - "/app/webxr-demo"
+      - "-p"
+      - "8080"
+      - "--cors"
+      - "-c-1"           # Отключить кеш для разработки
+
+    # Рабочая директория
+    workingDir: "/app/webxr-demo"
+
+    # Переменные окружения
+    env:
+      NODE_ENV: "production"
+      PORT: "8080"
+
+      # API endpoints
+      BACKEND_API_URL: "http://10.44.0.3:3000"
+      LIMINALDB_WS_URL: "ws://10.44.0.2:8787"
+
+    # User/Group
+    user:
+      uid: 1000
+      gid: 1000
+
+    # Рестарт политика
+    restartPolicy: "Always"
+    restartBackoff:
+      min: 1
+      max: 30
+
+  # Ресурсные лимиты (WebXR не требует много ресурсов)
+  resources:
+    limits:
+      cpu: "500m"         # 0.5 CPU core
+      memory: "512Mi"     # 512MB RAM
+      pids: 256
+    requests:
+      cpu: "100m"         # Минимум 0.1 CPU
+      memory: "128Mi"     # Минимум 128MB RAM
+
+  # Монтирование
+  mounts:
+    # Rootfs с Node.js и http-server
+    - source: "/home/user/KuponGo/garden/rootfs/webxr"
+      target: "/"
+      type: "bind"
+      readonly: false
+
+    # WebXR статические файлы
+    - source: "/home/user/KuponGo/webxr-demo"
+      target: "/app/webxr-demo"
+      type: "bind"
+      readonly: true
+
+  # Сетевые настройки
+  network:
+    mode: "bridge"
+    hostname: "webxr"
+    ports:
+      - containerPort: 8080
+        hostPort: 8080
+        protocol: "tcp"
+    dns:
+      - "8.8.8.8"
+
+  # Namespace изоляция
+  namespaces:
+    user: true
+    pid: true
+    uts: true
+    ipc: true
+    mount: true
+    network: true
+
+  # Security
+  security:
+    capabilities:
+      drop:
+        - "CAP_SYS_ADMIN"
+        - "CAP_NET_ADMIN"
+      add: []
+    noNewPrivileges: true
+
+  # Мониторинг
+  monitoring:
+    enabled: true
+    interval: 60
+    metrics:
+      - "memory.usage"
+      - "cpu.usage"
+
+  # Logging
+  logging:
+    driver: "liminaldb"
+    format: "json"
+    level: "info"
+    outputs:
+      - type: "file"
+        path: "/var/log/kupongo/webxr.log"
+      - type: "liminal"
+        endpoint: "ws://10.44.0.2:8787"
+        namespace: "kupongo.logs.webxr"
+
+  # Healthcheck
+  healthcheck:
+    enabled: true
+    command: ["curl", "-f", "http://localhost:8080/"]
+    interval: 30
+    timeout: 5
+    retries: 3
+    startPeriod: 5
+
+  # Зависимости
+  depends_on:
+    - backend

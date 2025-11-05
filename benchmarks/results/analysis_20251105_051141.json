@@ -1,0 +1,48 @@
+{
+  "timestamp": "2025-11-05T05:11:41.323791",
+  "docker": {
+    "startup_time_ms": 438,
+    "memory_mb": 470,
+    "cpu_percent": 18.02143591975511,
+    "response_time_ms": 14.252018056525547,
+    "throughput_rps": 182,
+    "container_overhead_mb": 145,
+    "binary_size_mb": 102
+  },
+  "gardenliminal": {
+    "startup_time_ms": 115,
+    "memory_mb": 205,
+    "cpu_percent": 13.526826813731827,
+    "response_time_ms": 14.869813800510173,
+    "throughput_rps": 251,
+    "container_overhead_mb": 25,
+    "binary_size_mb": 11
+  },
+  "analysis": {
+    "startup_improvement_pct": 73.7,
+    "memory_reduction_pct": 56.4,
+    "cpu_reduction_pct": 24.9,
+    "response_improvement_pct": -4.3,
+    "throughput_improvement_pct": 37.9,
+    "overhead_reduction_pct": 82.8,
+    "binary_reduction_pct": 89.2,
+    "overall_improvement_pct": 38.7
+  },
+  "recommendations": [
+    {
+      "category": "Startup Performance",
+      "finding": "GardenLiminal is 73.7% faster at startup",
+      "recommendation": "Use GardenLiminal for CI/CD pipelines and development"
+    },
+    {
+      "category": "Memory Efficiency",
+      "finding": "GardenLiminal uses 56.4% less memory",
+      "recommendation": "Deploy with GardenLiminal on resource-constrained environments"
+    },
+    {
+      "category": "Throughput",
+      "finding": "GardenLiminal handles 37.9% more requests",
+      "recommendation": "Suitable for high-traffic scenarios"
+    }
+  ]
+}

@@ -1,0 +1,250 @@
+# GardenLiminal Pod для KuponGo
+# Оркестрация всех сервисов в единой изолированной среде
+
+apiVersion: garden.liminal/v1
+kind: Pod
+
+metadata:
+  name: kupongo-stack
+  version: "1.0.0"
+  description: "Полный стек KuponGo: LiminalDB + Backend + WebXR"
+  labels:
+    app: kupongo
+    environment: production
+  annotations:
+    maintainer: "KuponGo Team"
+    experimental: "true"
+
+spec:
+  # Политика рестарта для всего Pod
+  restartPolicy: "Always"
+
+  # Shared network namespace для всех контейнеров
+  # Все контейнеры будут делить одну сеть (как в Kubernetes Pod)
+  shareNetwork: true
+
+  # DNS настройки для Pod
+  dns:
+    nameservers:
+      - "8.8.8.8"
+      - "1.1.1.1"
+    search:
+      - "kupongo.local"
+    options:
+      - "ndots:2"
+
+  # Hostname для Pod
+  hostname: "kupongo-stack"
+
+  # Security контекст на уровне Pod
+  securityContext:
+    runAsUser: 1000
+    runAsGroup: 1000
+    fsGroup: 1000
+    noNewPrivileges: true
+
+  # Контейнеры в Pod (запускаются в порядке depends_on)
+  containers:
+    # 1. LiminalDB - база данных (запускается первой)
+    - name: liminaldb
+      seedFile: "./seeds/liminaldb.yaml"
+      priority: 100          # Высший приоритет - запускается первой
+      startupOrder: 1
+
+      # Переопределение портов (внутри Pod все на localhost)
+      ports:
+        - name: liminal-ws
+          containerPort: 8787
+          protocol: tcp
+
+      # Volume mounts специфичные для этого контейнера
+      volumeMounts:
+        - name: liminaldb-data
+          mountPath: /data/liminaldb
+
+    # 2. Backend API - зависит от LiminalDB
+    - name: backend
+      seedFile: "./seeds/backend.yaml"
+      priority: 50
+      startupOrder: 2
+
+      # Переопределение переменных для Pod сети
+      env:
+        LIMINALDB_URL: "ws://localhost:8787"  # Внутри Pod все на localhost
+        PORT: "3000"
+
+      ports:
+        - name: api-http
+          containerPort: 3000
+          protocol: tcp
+
+      # Readiness probe - проверка готовности
+      readinessProbe:
+        httpGet:
+          path: /health
+          port: 3000
+        initialDelaySeconds: 15
+        periodSeconds: 10
+
+    # 3. WebXR Demo - зависит от Backend
+    - name: webxr
+      seedFile: "./seeds/webxr.yaml"
+      priority: 10
+      startupOrder: 3
+
+      env:
+        BACKEND_API_URL: "http://localhost:3000"  # Внутри Pod
+        LIMINALDB_WS_URL: "ws://localhost:8787"
+
+      ports:
+        - name: webxr-http
+          containerPort: 8080
+          protocol: tcp
+
+      readinessProbe:
+        httpGet:
+          path: /
+          port: 8080
+        initialDelaySeconds: 5
+        periodSeconds: 10
+
+  # Volumes для Pod (shared между контейнерами)
+  volumes:
+    # LiminalDB persistent storage
+    - name: liminaldb-data
+      type: hostPath
+      hostPath:
+        path: /var/lib/kupongo/liminaldb-data
+        type: DirectoryOrCreate
+
+    # Shared logs directory
+    - name: logs
+      type: hostPath
+      hostPath:
+        path: /var/lib/kupongo/logs
+        type: DirectoryOrCreate
+
+    # Temporary storage (tmpfs)
+    - name: tmp
+      type: emptyDir
+      emptyDir:
+        medium: Memory
+        sizeLimit: 256Mi
+
+  # Сетевая конфигурация Pod
+  network:
+    # Mode: bridge с veth парой
+    mode: bridge
+    bridgeName: gl0
+
+    # IP адрес для Pod (статический)
+    podIP: 10.44.0.10
+
+    # Exposed ports на хост
+    hostPorts:
+      - containerPort: 8787   # LiminalDB
+        hostPort: 8787
+        protocol: tcp
+
+      - containerPort: 3000   # Backend API
+        hostPort: 3000
+        protocol: tcp
+
+      - containerPort: 8080   # WebXR
+        hostPort: 8080
+        protocol: tcp
+
+    # Port forwarding rules
+    portForwarding:
+      - name: liminaldb-external
+        from: "0.0.0.0:8787"
+        to: "10.44.0.10:8787"
+
+      - name: api-external
+        from: "0.0.0.0:3000"
+        to: "10.44.0.10:3000"
+
+      - name: webxr-external
+        from: "0.0.0.0:8080"
+        to: "10.44.0.10:8080"
+
+  # Resource quotas для всего Pod
+  resources:
+    limits:
+      cpu: "4000m"        # Всего 4 CPU cores
+      memory: "4Gi"       # Всего 4GB RAM
+      pids: 2048
+    requests:
+      cpu: "1000m"
+      memory: "1Gi"
+
+  # Lifecycle hooks
+  lifecycle:
+    # PreStart - перед запуском Pod
+    preStart:
+      exec:
+        command:
+          - /bin/sh
+          - -c
+          - |
+            echo "Initializing KuponGo Pod..."
+            mkdir -p /var/lib/kupongo/liminaldb-data
+            mkdir -p /var/lib/kupongo/logs
+            chown -R 1000:1000 /var/lib/kupongo
+
+    # PostStart - после успешного запуска
+    postStart:
+      exec:
+        command:
+          - /bin/sh
+          - -c
+          - |
+            echo "KuponGo Pod started successfully!"
+            echo "LiminalDB: ws://localhost:8787"
+            echo "Backend API: http://localhost:3000"
+            echo "WebXR Demo: http://localhost:8080"
+
+    # PreStop - перед остановкой Pod
+    preStop:
+      exec:
+        command:
+          - /bin/sh
+          - -c
+          - |
+            echo "Gracefully shutting down KuponGo Pod..."
+            sleep 5
+
+  # Monitoring и метрики для Pod
+  monitoring:
+    enabled: true
+    interval: 30
+    prometheus:
+      enabled: true
+      port: 9090
+      path: /metrics
+
+  # Event logging в LiminalDB
+  logging:
+    driver: liminaldb
+    endpoint: "ws://localhost:8787"
+    namespace: "kupongo.events.pod"
+    format: json
+    aggregation:
+      enabled: true
+      bufferSize: 1000
+      flushInterval: 10
+
+  # Service Discovery (для мультипод деплоя)
+  serviceDiscovery:
+    enabled: true
+    protocol: dns
+    endpoints:
+      - name: liminaldb
+        port: 8787
+        protocol: tcp
+      - name: api
+        port: 3000
+        protocol: http
+      - name: webxr
+        port: 8080
+        protocol: http
