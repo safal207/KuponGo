@@ -1,0 +1,150 @@
+# GardenLiminal Seed для LiminalDB
+# Запускает LiminalDB сервер на порту 8787
+
+apiVersion: garden.liminal/v1
+kind: Seed
+
+metadata:
+  name: kupongo-liminaldb
+  version: "1.0.0"
+  description: "LiminalDB сервер для KuponGo - живая адаптивная база данных"
+  labels:
+    app: kupongo
+    component: database
+    tier: backend
+
+spec:
+  # Процесс для запуска
+  process:
+    # Команда запуска LiminalDB
+    entrypoint: ["/usr/local/bin/liminaldb"]
+    args:
+      - "server"
+      - "--host"
+      - "0.0.0.0"
+      - "--port"
+      - "8787"
+      - "--data-dir"
+      - "/data/liminaldb"
+
+    # Рабочая директория
+    workingDir: "/app"
+
+    # Переменные окружения
+    env:
+      RUST_LOG: "info"
+      LIMINAL_MODE: "server"
+      LIMINAL_STORAGE_PATH: "/data/liminaldb"
+      LIMINAL_MAX_CONNECTIONS: "100"
+      LIMINAL_ENABLE_METRICS: "true"
+
+    # User/Group для изоляции
+    user:
+      uid: 1000
+      gid: 1000
+      additionalGids: []
+
+    # Рестарт политика
+    restartPolicy: "Always"
+    restartBackoff:
+      min: 1
+      max: 30
+
+  # Ресурсные лимиты (cgroups v2)
+  resources:
+    limits:
+      cpu: "2000m"        # 2 CPU cores
+      memory: "2Gi"       # 2GB RAM
+      pids: 1024          # Максимум 1024 процессов
+    requests:
+      cpu: "500m"         # Минимум 0.5 CPU
+      memory: "512Mi"     # Минимум 512MB RAM
+
+  # Монтирование файловых систем
+  mounts:
+    # Корневая FS (rootfs)
+    - source: "/home/user/KuponGo/garden/rootfs/liminaldb"
+      target: "/"
+      type: "bind"
+      readonly: false
+
+    # Volume для данных
+    - source: "/var/lib/kupongo/liminaldb-data"
+      target: "/data/liminaldb"
+      type: "bind"
+      readonly: false
+
+    # Shared memory
+    - source: "/dev/shm"
+      target: "/dev/shm"
+      type: "tmpfs"
+      readonly: false
+
+  # Сетевые настройки
+  network:
+    mode: "bridge"        # Использовать gl0 bridge
+    hostname: "liminaldb"
+    ports:
+      - containerPort: 8787
+        hostPort: 8787
+        protocol: "tcp"
+    dns:
+      - "8.8.8.8"
+      - "1.1.1.1"
+
+  # Namespace изоляция
+  namespaces:
+    user: true            # User namespace
+    pid: true             # PID namespace
+    uts: true             # UTS namespace (hostname)
+    ipc: true             # IPC namespace
+    mount: true           # Mount namespace
+    network: true         # Network namespace
+
+  # Security профиль
+  security:
+    # Capabilities (пока stub)
+    capabilities:
+      drop:
+        - "CAP_SYS_ADMIN"
+        - "CAP_NET_ADMIN"
+        - "CAP_SYS_MODULE"
+      add: []
+
+    # No new privileges
+    noNewPrivileges: true
+
+    # Seccomp профиль (пока stub)
+    seccomp:
+      defaultAction: "SCMP_ACT_ALLOW"
+      syscalls: []
+
+  # Мониторинг и метрики
+  monitoring:
+    enabled: true
+    interval: 30          # Собирать метрики каждые 30 секунд
+    metrics:
+      - "memory.usage"
+      - "cpu.usage"
+      - "pids.current"
+
+  # Event logging
+  logging:
+    driver: "liminaldb"   # Логировать события в саму LiminalDB
+    format: "json"
+    level: "info"
+    outputs:
+      - type: "file"
+        path: "/var/log/kupongo/liminaldb.log"
+      - type: "liminal"
+        endpoint: "ws://127.0.0.1:8787"
+        namespace: "kupongo.logs"
+
+  # Healthcheck
+  healthcheck:
+    enabled: true
+    command: ["curl", "-f", "http://localhost:8787/health"]
+    interval: 30
+    timeout: 5
+    retries: 3
+    startPeriod: 10
